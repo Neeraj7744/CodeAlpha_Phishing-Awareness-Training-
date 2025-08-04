@@ -1,0 +1,130 @@
+import tkinter as tk
+from tkinter import messagebox
+
+
+slides = [
+    {
+        "title": "Welcome to Phishing Awareness Training",
+        "content": "Learn how to identify and avoid phishing scams.\n\nClick 'Next' to begin."
+    },
+    {
+        "title": "What is Phishing?",
+        "content": "Phishing is a fraudulent attempt to obtain sensitive information\nby pretending to be a trustworthy entity in electronic communications."
+    },
+    {
+        "title": "Common Types of Phishing",
+        "content": "1. Email Phishing\n2. Spear Phishing\n3. Smishing (SMS)\n4. Vishing (Voice)\n5. Fake websites (Quishing)"
+    },
+    {
+        "title": "How to Spot a Phishing Email",
+        "content": "- Suspicious sender address\n- Urgent tone or threats\n- Generic greetings like 'Dear Customer'\n- Attachments or unknown links"
+    },
+    {
+        "title": "Best Practices",
+        "content": "- Never click on suspicious links\n- Verify the sender’s email\n- Use Two-Factor Authentication (2FA)\n- Report suspicious emails to IT"
+    },
+    {
+        "title": "Quiz Time!",
+        "content": "Click 'Next' to test your phishing knowledge!"
+    }
+]
+
+
+quiz = [
+    {
+        "question": "Which of the following is a red flag of a phishing email?",
+        "options": ["Email from your boss", "Urgent request for login", "Weekly newsletter", "Meeting invite"],
+        "answer": 1
+    },
+    {
+        "question": "What does a fake website often use to deceive users?",
+        "options": ["Correct spelling", "HTTPS only", "Similar-looking URLs", "Government seal"],
+        "answer": 2
+    }
+]
+
+class PhishingApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Phishing Awareness Training")
+        self.current_slide = 0
+        self.in_quiz = False
+        self.quiz_index = 0
+        self.score = 0
+
+        self.title_label = tk.Label(root, text="", font=("Arial", 18, "bold"), pady=10)
+        self.title_label.pack()
+
+        self.text_label = tk.Label(root, text="", font=("Arial", 14), justify="left", wraplength=600, padx=20)
+        self.text_label.pack()
+
+        self.button_frame = tk.Frame(root)
+        self.button_frame.pack(pady=20)
+
+        self.back_button = tk.Button(self.button_frame, text="Back", command=self.prev_slide, width=10)
+        self.back_button.grid(row=0, column=0, padx=5)
+
+        self.next_button = tk.Button(self.button_frame, text="Next", command=self.next_slide, width=10)
+        self.next_button.grid(row=0, column=1, padx=5)
+
+        self.option_buttons = []
+
+        self.display_slide()
+
+    def display_slide(self):
+        self.in_quiz = False
+        self.title_label.config(text=slides[self.current_slide]["title"])
+        self.text_label.config(text=slides[self.current_slide]["content"])
+        for btn in self.option_buttons:
+            btn.destroy()
+        self.option_buttons = []
+
+    def display_quiz(self):
+        self.in_quiz = True
+        question = quiz[self.quiz_index]
+        self.title_label.config(text=f"Quiz Question {self.quiz_index + 1}")
+        self.text_label.config(text=question["question"])
+        for btn in self.option_buttons:
+            btn.destroy()
+        self.option_buttons = []
+        for i, option in enumerate(question["options"]):
+            btn = tk.Button(self.root, text=option, font=("Arial", 12), width=50,
+                            command=lambda i=i: self.check_answer(i))
+            btn.pack(pady=2)
+            self.option_buttons.append(btn)
+
+    def check_answer(self, selected):
+        correct = quiz[self.quiz_index]["answer"]
+        if selected == correct:
+            self.score += 1
+        self.quiz_index += 1
+        if self.quiz_index < len(quiz):
+            self.display_quiz()
+        else:
+            self.show_result()
+
+    def show_result(self):
+        for btn in self.option_buttons:
+            btn.destroy()
+        self.option_buttons = []
+        self.title_label.config(text="Quiz Completed!")
+        self.text_label.config(text=f"Your score: {self.score}/{len(quiz)}\n\nThanks for participating in Phishing Awareness Training.")
+
+    def next_slide(self):
+        if self.current_slide < len(slides) - 1:
+            self.current_slide += 1
+            self.display_slide()
+        elif self.current_slide == len(slides) - 1:
+            self.display_quiz()
+
+    def prev_slide(self):
+        if self.current_slide > 0 and not self.in_quiz:
+            self.current_slide -= 1
+            self.display_slide()
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.geometry("700x500")
+    app = PhishingApp(root)
+    root.mainloop()
